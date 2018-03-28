@@ -11,6 +11,7 @@
 		45779916206B51ED00706D44 /* WXViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45779914206B51ED00706D44 /* WXViewController.swift */; };
 		45779918206B524900706D44 /* WXMainCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45779917206B524900706D44 /* WXMainCollectionViewCell.swift */; };
 		4577991B206B524900706D44 /* SnapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4577991A206B524900706D44 /* SnapKit.framework */; };
+		4577991F206B528900706D44 /* WXPhotoBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4577991E206B528900706D44 /* WXPhotoBrowserViewController.swift */; };
 		457FD5F3206B461300CE85D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 457FD5F2206B461300CE85D7 /* Assets.xcassets */; };
 		457FD601206B461300CE85D7 /* WXPhotoBrowserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457FD600206B461300CE85D7 /* WXPhotoBrowserTests.swift */; };
 /* End PBXBuildFile section */
@@ -30,6 +31,7 @@
 		45779914206B51ED00706D44 /* WXViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WXViewController.swift; sourceTree = "<group>"; };
 		45779917206B524900706D44 /* WXMainCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WXMainCollectionViewCell.swift; sourceTree = "<group>"; };
 		4577991A206B524900706D44 /* SnapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SnapKit.framework; path = Carthage/Build/iOS/SnapKit.framework; sourceTree = "<group>"; };
+		4577991E206B528900706D44 /* WXPhotoBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WXPhotoBrowserViewController.swift; sourceTree = "<group>"; };
 		457FD5E8206B461300CE85D7 /* WXPhotoBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WXPhotoBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		457FD5F2206B461300CE85D7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		457FD5F7206B461300CE85D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -65,6 +67,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4577991D206B525C00706D44 /* PhotoBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				4577991E206B528900706D44 /* WXPhotoBrowserViewController.swift */,
+			);
+			path = PhotoBrowser;
+			sourceTree = "<group>";
+		};
 		457FD5DF206B461200CE85D7 = {
 			isa = PBXGroup;
 			children = (
@@ -87,6 +97,7 @@
 		457FD5EA206B461300CE85D7 /* WXPhotoBrowser */ = {
 			isa = PBXGroup;
 			children = (
+				4577991D206B525C00706D44 /* PhotoBrowser */,
 				45779913206B51EC00706D44 /* WXAppDelegate.swift */,
 				45779914206B51ED00706D44 /* WXViewController.swift */,
 				457FD5F2206B461300CE85D7 /* Assets.xcassets */,
@@ -228,6 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				45779918206B524900706D44 /* WXMainCollectionViewCell.swift in Sources */,
+				4577991F206B528900706D44 /* WXPhotoBrowserViewController.swift in Sources */,
 				45779915206B51ED00706D44 /* WXAppDelegate.swift in Sources */,
 				45779916206B51ED00706D44 /* WXViewController.swift in Sources */,
 			);

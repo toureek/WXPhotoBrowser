@@ -105,7 +105,9 @@ class WXViewController: UIViewController, UICollectionViewDataSource, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        
+        let vc = WXPhotoBrowserViewController()
+        vc.dataList = ["1"]
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
 }
