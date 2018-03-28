@@ -10,6 +10,7 @@ import UIKit
 
 struct WXMainCollectionViewCellConstants {
     static let kMainCollectionViewCellIdentifier = "kMainCollectionViewCellIdentifier"
+    static let kMainCollectionViewCellIndexErrorMsg = "Something Wrong Here"
 }
 
 class WXMainCollectionViewCell: UICollectionViewCell {
@@ -39,23 +40,12 @@ class WXMainCollectionViewCell: UICollectionViewCell {
     }
     
     func updateImageViewer() {
-        var backgroundColor: UIColor?
+        print(cellIndex ?? WXMainCollectionViewCellConstants.kMainCollectionViewCellIndexErrorMsg)
         if let imgName = imageNameString {
-            if imgName == "1" {
-                backgroundColor = UIColor.black
-            } else if imgName == "2" {
-                backgroundColor = UIColor.brown
-            } else if imgName == "3" {
-                backgroundColor = UIColor.green
-            } else if imgName == "4" {
-                backgroundColor = UIColor.red
-            } else {
-                backgroundColor = UIColor.purple
-            }
+            imageViewer?.image = UIImage.init(named: imgName)
         } else {
             backgroundColor = UIColor.clear
         }
-        imageViewer?.backgroundColor = backgroundColor
     }
     
 }
