@@ -18,7 +18,7 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
     var itemScrollView: UIScrollView?
     var itemImageViewer: UIImageView?
     
-    var horizonModeSupported: Bool?
+    var horizonModeSupported: Bool?  //  TODO:
     var delegate: WXPhotoItemViewProtocol?
     var photo: WXPhoto?
     
@@ -38,12 +38,32 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
     func setUpViews() {
         setUpScrollView()
         setUpImageView()
-        
+    }
+    
+    func updateUI() {
+        if isImageDataFormatVailable() {
+            itemImageViewer?.image = UIImage.init(named: (photo?.imageName)!)
+        }
+        setNeedsUpdateConstraints()
+    }
+    
+    private func isImageDataFormatVailable() -> Bool {
+        if let itemPhoto = photo {
+            let imageName = itemPhoto.imageName ?? ""
+            let image = UIImage.init(named: imageName) ?? nil
+            return nil != image
+        }
+        return false
+    }
+    
+    override func updateConstraints() {
         addScrollViewAutoLayout()
         addImageViewerAutoLayout()
+        
+        super.updateConstraints()
     }
 
-    func setUpScrollView() {
+    private func setUpScrollView() {
         itemScrollView = UIScrollView.init()
         itemScrollView?.contentSize = CGSize.init(width: self.bounds.width, height: self.bounds.height)
         itemScrollView?.backgroundColor = .black
@@ -64,7 +84,7 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
         self.addSubview(itemScrollView!)
     }
     
-    func setUpImageView() {
+    private func setUpImageView() {
         itemImageViewer = UIImageView.init()
         itemImageViewer?.isUserInteractionEnabled = true
         itemImageViewer?.contentMode = .scaleAspectFill
@@ -79,13 +99,13 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
         itemScrollView?.addSubview(itemImageViewer!)
     }
     
-    func addScrollViewAutoLayout() {
+    private func addScrollViewAutoLayout() {
         itemScrollView?.snp.makeConstraints({ (make) -> Void in
             make.edges.equalTo(self)
         })
     }
     
-    func addImageViewerAutoLayout() {
+    private func addImageViewerAutoLayout() {
         let calculatedAutoLayout = autoLayoutCalculated()
         let calculatedImageHeight: CGFloat = currentImageViewHeight ?? 0
         itemImageViewer?.snp.remakeConstraints({ (make) -> Void in
@@ -103,17 +123,17 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
         })
     }
     
-    func autoLayoutCalculated() -> Bool {
+    private func autoLayoutCalculated() -> Bool {
         currentImageViewHeight = 0
-        let imageObject: UIImage? = UIImage.init(named: "2") ?? nil
-        if let imageObj = imageObject {
-            if imageObj.size.height > self.bounds.height {
-                let kImageViewerScalePoint: CGFloat = imageObj.size.height / self.bounds.height
+        if isImageDataFormatVailable() {
+            let imageObject: UIImage? = UIImage.init(named: (photo?.imageName)!)
+            if imageObject!.size.height > self.bounds.height {
+                let kImageViewerScalePoint: CGFloat = imageObject!.size.height / self.bounds.height
                 currentImageViewWidthWhenImageTooHigh = UIScreen.main.bounds.width * kImageViewerScalePoint
                 isCurrentImageViewTooHigh = true
             } else {
                 isCurrentImageViewTooHigh = false
-                let kImageViewerScalePoint: CGFloat = imageObj.size.width / imageObj.size.height
+                let kImageViewerScalePoint: CGFloat = imageObject!.size.width / imageObject!.size.height
                 currentImageViewHeight = UIScreen.main.bounds.width / kImageViewerScalePoint
             }
             return true
@@ -124,16 +144,12 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
     
     // MARK: - UIScrollViewDelegate
     
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        print(scrollView.contentOffset.x, scrollView.contentOffset.y)
-    }
-    
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return itemImageViewer
     }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
         
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print(scrollView.contentOffset.x, scrollView.contentOffset.y)
     }
 
     // MARK: - Gesture Handlers
