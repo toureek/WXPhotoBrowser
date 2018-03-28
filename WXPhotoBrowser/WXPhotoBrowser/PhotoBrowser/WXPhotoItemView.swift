@@ -70,7 +70,12 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
         itemImageViewer?.contentMode = .scaleAspectFill
         itemImageViewer?.image = UIImage.init(named: "2")
         let singleTapGesture: UITapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(didSingleTapGestureReceived))
+        singleTapGesture.numberOfTapsRequired = 1
+        let doubleTapGesture: UITapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(didDoubleTapGestureReceived(gesture:)))
+        doubleTapGesture.numberOfTapsRequired = 2
+        //TODO: LongPress Tap
         itemImageViewer?.addGestureRecognizer(singleTapGesture)
+        itemImageViewer?.addGestureRecognizer(doubleTapGesture)
         itemScrollView?.addSubview(itemImageViewer!)
     }
     
@@ -120,17 +125,10 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
     // MARK: - UIScrollViewDelegate
     
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        print("#################")
-        print("scrollViewDidEndZooming")
         print(scrollView.contentOffset.x, scrollView.contentOffset.y)
-        print("#################")
     }
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        print("----------------------------")
-        print("viewForZooming")
-        print(scrollView.contentOffset.x, scrollView.contentOffset.y)
-        print("----------------------------")
         return itemImageViewer
     }
     
@@ -138,14 +136,30 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
         
     }
 
-    
     // MARK: - Gesture Handlers
     
     @objc func didSingleTapGestureReceived() {
-        let existSEL: Bool = (((delegate?.triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: (photo?.index)!)) != nil))
-        if (photo != nil) && (delegate != nil) && existSEL {
+        let existSEL: Bool = (delegate != nil) && (((delegate?.triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: (photo?.index)!)) != nil))
+        if (photo != nil) && existSEL {
             delegate?.triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: (photo?.index)!)
         }
     }
-
+    
+    @objc func didDoubleTapGestureReceived(gesture: UITapGestureRecognizer) {
+        if itemScrollView?.zoomScale == 1 {
+            itemScrollView?.zoom(to: zoomingRectForScale(scale: (itemScrollView?.maximumZoomScale)!, center: gesture.location(in: gesture.view)), animated: true)
+        } else {
+            itemScrollView?.setZoomScale(1, animated: true)
+        }
+    }
+    
+    func zoomingRectForScale(scale: CGFloat, center: CGPoint) -> CGRect {
+        var zoomRect = CGRect.zero
+        zoomRect.size.height = itemImageViewer!.frame.size.height / scale
+        zoomRect.size.width  = itemImageViewer!.frame.size.width  / scale
+        let newCenter = itemScrollView!.convert(center, from: itemImageViewer!)
+        zoomRect.origin.x = newCenter.x - (zoomRect.size.width / 2.0)
+        zoomRect.origin.y = newCenter.y - (zoomRect.size.height / 2.0)
+        return zoomRect
+    }
 }
