@@ -12,43 +12,35 @@ struct WXPhotoBrowserConstants {
     static let kImageViewSplitorPadding: CGFloat = 10;
 }
 
-class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate, WXPhotoItemViewProtocol {
+class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    var contentScrollView: UIScrollView?
-    var contentView: UIView?
-    var previousImageView: WXPhotoItemView?
-    var currentImageView: WXPhotoItemView?
-    var nextImageView: WXPhotoItemView?
-    
+    var collectionView: UICollectionView?
     var currentImageIndex: Int?
-    var dataList: Array<String>?
+    var dataList: Array<WXPhoto>?
     private var targetImageList: Array<WXPhoto>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        buildFakeDataSource()
         setUpNavigationBarStyle()
-        setUpViews()
-        addAutoLayoutsForViews();
-        reloadImageView()
+        setUpCollectionViewAndLayout()
     }
     
-    func setUpViews() {
-        setUpScrollView()
-        setUpContentView()
-        setUpPhotoItemViews()
-    }
-    
-    func addAutoLayoutsForViews() {
-        addContentScrollViewAutoLayout()
-        addContentViewAutoLayout()
-        addPreviousImageViewAutoLayout()
-    }
-    
-    func reloadImageView() {
-        previousImageView?.updateUI()
-        currentImageView?.updateUI()
-        nextImageView?.updateUI()
+    func buildFakeDataSource() {
+        var photo1: WXPhoto? = WXPhoto()
+        photo1?.imageName = "1"
+        photo1?.index = 1;
+
+        var photo2: WXPhoto? = WXPhoto()
+        photo2?.imageName = "2"
+        photo2?.index = 2;
+
+        var photo3: WXPhoto? = WXPhoto()
+        photo3?.imageName = "3"
+        photo3?.index = 3;
+
+        dataList = [photo1!, photo2!, photo3!]
     }
     
     func setUpNavigationBarStyle() {
@@ -59,102 +51,37 @@ class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate, WXPh
         self.navigationController?.isNavigationBarHidden = true
     }
     
-    func setUpScrollView() {
-        contentScrollView = UIScrollView.init()
-        contentScrollView?.contentSize = CGSize.init(width: self.view.bounds.width*2+WXPhotoBrowserConstants.kImageViewSplitorPadding*2,
-                                                     height: self.view.bounds.height)
-        contentScrollView?.backgroundColor = .black
-        contentScrollView?.isScrollEnabled = true
-        contentScrollView?.showsVerticalScrollIndicator = false
-        contentScrollView?.showsHorizontalScrollIndicator = false
-        contentScrollView?.minimumZoomScale = 1
-        contentScrollView?.maximumZoomScale = 4
-        contentScrollView?.delegate = self
-        contentScrollView?.bouncesZoom = true
-        contentScrollView?.clipsToBounds = true
-        contentScrollView?.contentOffset = .zero
-        contentScrollView?.alwaysBounceVertical = true
-        contentScrollView?.alwaysBounceHorizontal = true
-        contentScrollView?.layer.borderColor = UIColor.yellow.cgColor
-        contentScrollView?.layer.borderWidth = 1
+    func setUpCollectionViewAndLayout() {
+        let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
+        layout.minimumLineSpacing = WXPhotoBrowserConstants.kImageViewSplitorPadding
+        layout.minimumInteritemSpacing = WXPhotoBrowserConstants.kImageViewSplitorPadding
+        layout.scrollDirection = .horizontal
+        collectionView = UICollectionView.init(frame: self.view.bounds, collectionViewLayout: layout)
+        collectionView?.backgroundColor = .black
+        collectionView?.isScrollEnabled = true
+        collectionView?.showsVerticalScrollIndicator = false
+        collectionView?.showsHorizontalScrollIndicator = false
+        collectionView?.minimumZoomScale = 1
+        collectionView?.maximumZoomScale = 4
+        collectionView?.delegate = self
+        collectionView?.dataSource = self
+        collectionView?.clipsToBounds = true
+        collectionView?.contentOffset = .zero
+        collectionView?.alwaysBounceVertical = false
+        collectionView?.alwaysBounceHorizontal = false
+        collectionView?.layer.borderColor = UIColor.yellow.cgColor
+        collectionView?.layer.borderWidth = 1
+        collectionView?.scrollsToTop = false;
+        collectionView?.isPagingEnabled = true
+        collectionView?.bounces = true
+        collectionView?.register(WXPhotoItemView.self, forCellWithReuseIdentifier: WXPhotoItemViewConstants.kWXPhotoItemViewIdentifier)
         if #available(iOS 11, *) {
-            contentScrollView?.contentInsetAdjustmentBehavior = .never;
+            collectionView?.contentInsetAdjustmentBehavior = .never;
         }
-        self.view.addSubview(contentScrollView!)
-    }
-    
-    func setUpContentView() {
-        contentView = UIView.init()
-        contentView?.backgroundColor = .black
-        contentScrollView?.addSubview(contentView!)
-    }
-    
-    func setUpPhotoItemViews() {
-        previousImageView = WXPhotoItemView.init(frame: self.view.bounds)
-        previousImageView?.delegate = self
-        var photo1: WXPhoto? = WXPhoto()
-        photo1?.imageName = "1"
-        photo1?.index = 1;
-        previousImageView?.photo = photo1
-        previousImageView?.layer.borderColor = UIColor.orange.cgColor
-        previousImageView?.layer.borderWidth = 1
-        contentView?.addSubview(previousImageView!)
+        self.view.addSubview(collectionView!)
         
-        currentImageView = WXPhotoItemView.init(frame: self.view.bounds)
-        currentImageView?.delegate = self
-        var photo2: WXPhoto? = WXPhoto()
-        photo2?.imageName = "2"
-        photo2?.index = 2;
-        currentImageView?.photo = photo2
-        currentImageView?.layer.borderColor = UIColor.green.cgColor
-        currentImageView?.layer.borderWidth = 1
-        contentView?.addSubview(currentImageView!)
-        
-        nextImageView = WXPhotoItemView.init(frame: self.view.bounds)
-        nextImageView?.delegate = self
-        var photo3: WXPhoto? = WXPhoto()
-        photo3?.imageName = "3"
-        photo3?.index = 3;
-        nextImageView?.photo = photo3
-        nextImageView?.layer.borderColor = UIColor.blue.cgColor
-        nextImageView?.layer.borderWidth = 1
-        contentView?.addSubview(nextImageView!)
-    }
-
-    func addContentScrollViewAutoLayout() {
-        contentScrollView?.snp.makeConstraints({ (make) -> Void in
+        collectionView?.snp.makeConstraints({ (make) -> Void in
             make.edges.equalTo(self.view)
-        })
-    }
-
-    func addContentViewAutoLayout() {
-        contentView?.snp.makeConstraints({ (make) -> Void in
-            make.edges.equalTo(contentScrollView!)
-            make.height.equalTo(contentScrollView!)
-            make.width.equalTo(UIScreen.main.bounds.width*3+WXPhotoBrowserConstants.kImageViewSplitorPadding*2)
-        })
-    }
-    
-    func addPreviousImageViewAutoLayout() {
-        previousImageView?.snp.makeConstraints({ (make) -> Void in
-            make.left.equalTo(contentView!)
-            make.centerY.equalTo(contentView!)
-            make.width.equalTo(UIScreen.main.bounds.width)
-            make.height.equalTo(UIScreen.main.bounds.height)
-        })
-        
-        currentImageView?.snp.makeConstraints({ (make) -> Void in
-            make.top.bottom.equalTo(contentView!)
-            make.left.equalTo(previousImageView!.snp.right).offset(10)
-            make.centerY.equalTo(contentView!)
-            make.size.equalTo(previousImageView!)
-        })
-        
-        nextImageView?.snp.makeConstraints({ (make) -> Void in
-            make.top.bottom.equalTo(contentView!)
-            make.left.equalTo(currentImageView!.snp.right).offset(10)
-            make.centerY.equalTo(contentView!)
-            make.size.equalTo(previousImageView!)
         })
     }
     
@@ -167,19 +94,36 @@ class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate, WXPh
     }
     
     // MARK: - UIScrollViewDelegate
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print(scrollView.contentOffset.x, scrollView.contentOffset.y)
-    }
-    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
+        handleWithScrollingAnimation()
     }
     
-    // MARK: - WXPhotoItemViewProtocol
-    func triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: Int) {
-        print("WXPhotoItemViewProtocol")
-        print(photoIndex)
+    func handleWithScrollingAnimation() {
+        let currentItemIndex: Int = Int.init(Double.init(collectionView!.contentOffset.x + UIScreen.main.bounds.width*0.5) / Double.init(UIScreen.main.bounds.width))
+        let indexPath: NSIndexPath = NSIndexPath.init(row: currentItemIndex, section: 0)
+        collectionView?.scrollToItem(at: indexPath as IndexPath, at: .right, animated: false)
     }
     
+    // MARK: - UICollectionViewDataSource
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return (dataList?.count)!;
+    }
     
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell: WXPhotoItemView = collectionView.dequeueReusableCell(withReuseIdentifier: WXPhotoItemViewConstants.kWXPhotoItemViewIdentifier, for: indexPath) as! WXPhotoItemView
+        cell.photo = dataList?[indexPath.row]
+        cell.updateUI()
+        return cell
+    }
+    
+    // MARK: - UICollectionViewDelegateFlowLayout
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize.init(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+    }
+    
+    // MARK: - UICollectionViewDelegate
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+
 }

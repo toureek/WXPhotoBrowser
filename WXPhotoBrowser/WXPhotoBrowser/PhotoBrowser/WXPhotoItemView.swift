@@ -8,18 +8,16 @@
 
 import UIKit
 
-protocol WXPhotoItemViewProtocol {
-    func triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: Int)
+struct WXPhotoItemViewConstants {
+    static let kWXPhotoItemViewIdentifier = "kWXPhotoItemViewIdentifier"
 }
 
-
-class WXPhotoItemView: UIView, UIScrollViewDelegate {
+class WXPhotoItemView: UICollectionViewCell, UIScrollViewDelegate {
     
     var itemScrollView: UIScrollView?
     var itemImageViewer: UIImageView?
     
     var horizonModeSupported: Bool?  //  TODO:
-    var delegate: WXPhotoItemViewProtocol?
     var photo: WXPhoto?
     
     private var isCurrentImageViewTooHigh: Bool?
@@ -78,30 +76,27 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
         itemScrollView?.contentOffset = .zero
         itemScrollView?.alwaysBounceVertical = true
         itemScrollView?.alwaysBounceHorizontal = true
+        itemScrollView?.isPagingEnabled = true
         if #available(iOS 11, *) {
             itemScrollView?.contentInsetAdjustmentBehavior = .never;
         }
-        self.addSubview(itemScrollView!)
+        self.contentView.addSubview(itemScrollView!)
     }
     
     private func setUpImageView() {
         itemImageViewer = UIImageView.init()
         itemImageViewer?.isUserInteractionEnabled = true
         itemImageViewer?.contentMode = .scaleAspectFill
-        itemImageViewer?.image = UIImage.init(named: "2")
-        let singleTapGesture: UITapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(didSingleTapGestureReceived))
-        singleTapGesture.numberOfTapsRequired = 1
         let doubleTapGesture: UITapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(didDoubleTapGestureReceived(gesture:)))
         doubleTapGesture.numberOfTapsRequired = 2
         //TODO: LongPress Tap
-        itemImageViewer?.addGestureRecognizer(singleTapGesture)
         itemImageViewer?.addGestureRecognizer(doubleTapGesture)
         itemScrollView?.addSubview(itemImageViewer!)
     }
     
     private func addScrollViewAutoLayout() {
         itemScrollView?.snp.makeConstraints({ (make) -> Void in
-            make.edges.equalTo(self)
+            make.edges.equalTo(self.contentView)
         })
     }
     
@@ -153,14 +148,6 @@ class WXPhotoItemView: UIView, UIScrollViewDelegate {
     }
 
     // MARK: - Gesture Handlers
-    
-    @objc func didSingleTapGestureReceived() {
-        let existSEL: Bool = (delegate != nil) && (((delegate?.triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: (photo?.index)!)) != nil))
-        if (photo != nil) && existSEL {
-            delegate?.triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: (photo?.index)!)
-        }
-    }
-    
     @objc func didDoubleTapGestureReceived(gesture: UITapGestureRecognizer) {
         if itemScrollView?.zoomScale == 1 {
             itemScrollView?.zoom(to: zoomingRectForScale(scale: (itemScrollView?.maximumZoomScale)!, center: gesture.location(in: gesture.view)), animated: true)
