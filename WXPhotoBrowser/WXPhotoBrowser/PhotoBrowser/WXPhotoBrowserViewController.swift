@@ -8,13 +8,14 @@
 
 import UIKit
 
-class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate {
-    var contentScrollView: UIScrollView?
-    var imageViewer: UIImageView?
+class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate, WXPhotoItemViewProtocol {
     
-    var isCurrentImageViewTooHigh: Bool?
-    var currentImageViewWidthWhenImageTooHigh: CGFloat?
-    var currentImageViewHeight: CGFloat?
+    var contentScrollView: UIScrollView?
+    var contentView: UIView?
+    var previousImageView: WXPhotoItemView?
+    var currentImageView: WXPhotoItemView?
+    var nextImageView: WXPhotoItemView?
+    
     var currentImageIndex: Int?
     var dataList: Array<String>?
     
@@ -23,7 +24,19 @@ class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate {
 
         setUpNavigationBarStyle()
         setUpViews()
-        setUpAutoLayoutsForViews()
+        addAutoLayoutsForViews();
+    }
+    
+    func setUpViews() {
+        setUpScrollView()
+        setUpContentView()
+        setUpPhotoItemViews()
+    }
+    
+    func addAutoLayoutsForViews() {
+        addContentScrollViewAutoLayout()
+        addContentViewAutoLayout()
+        addPreviousImageViewAutoLayout()
     }
     
     func setUpNavigationBarStyle() {
@@ -34,19 +47,9 @@ class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate {
         self.navigationController?.isNavigationBarHidden = true
     }
     
-    func setUpViews() {
-        setUpScrollView()
-        setUpImageView()
-    }
-    
-    func setUpAutoLayoutsForViews() {
-        addScrollViewAutoLayout()
-        addImageViewerAutoLayout()
-    }
-    
     func setUpScrollView() {
         contentScrollView = UIScrollView.init()
-        contentScrollView?.contentSize = CGSize.init(width: self.view.bounds.width*3 + CGFloat.init(20*2), height: self.view.bounds.height)
+        contentScrollView?.contentSize = CGSize.init(width: self.view.bounds.width, height: self.view.bounds.height)
         contentScrollView?.backgroundColor = .black
         contentScrollView?.isScrollEnabled = true
         contentScrollView?.showsVerticalScrollIndicator = false
@@ -67,59 +70,43 @@ class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate {
         self.view.addSubview(contentScrollView!)
     }
     
-    func setUpImageView() {
-        imageViewer = UIImageView.init()
-        imageViewer?.isUserInteractionEnabled = true
-        imageViewer?.contentMode = .scaleAspectFill
-        imageViewer?.image = UIImage.init(named: "2")
-        let singleTapGesture: UITapGestureRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(didSingleTapGestureReceived))
-        imageViewer?.addGestureRecognizer(singleTapGesture)
-        contentScrollView?.addSubview(imageViewer!)
+    func setUpContentView() {
+        contentView = UIView.init()
+        contentView?.backgroundColor = .white
+        contentScrollView?.addSubview(contentView!)
     }
     
-    func addScrollViewAutoLayout() {
+    func setUpPhotoItemViews() {
+        previousImageView = WXPhotoItemView.init(frame: self.view.bounds)
+        previousImageView?.delegate = self
+        var photo: WXPhoto? = WXPhoto()
+        photo?.index = 3;
+        previousImageView?.photo = photo
+        previousImageView?.layer.borderColor = UIColor.red.cgColor
+        previousImageView?.layer.borderWidth = 1
+        contentView?.addSubview(previousImageView!)
+    }
+
+    func addContentScrollViewAutoLayout() {
         contentScrollView?.snp.makeConstraints({ (make) -> Void in
             make.edges.equalTo(self.view)
         })
     }
-    
-    func addImageViewerAutoLayout() {
-        let calculatedAutoLayout = autoLayoutCalculated()
-        let calculatedImageHeight: CGFloat = currentImageViewHeight ?? 0
-        imageViewer?.snp.remakeConstraints({ (make) -> Void in
-            if calculatedAutoLayout && (isCurrentImageViewTooHigh == false) {
-                make.width.equalTo(UIScreen.main.bounds.width)
-                make.height.equalTo(calculatedImageHeight)
-                make.center.equalTo(contentScrollView!)
-            } else if calculatedAutoLayout && (isCurrentImageViewTooHigh == true) {
-                make.height.equalTo(UIScreen.main.bounds.height)
-                make.width.equalTo(currentImageViewWidthWhenImageTooHigh!)
-                make.center.equalTo(contentScrollView!)
-            } else {
-                print("do nothing...")  // do nothing...
-            }
+
+    func addContentViewAutoLayout() {
+        contentView?.snp.makeConstraints({ (make) -> Void in
+            make.edges.equalTo(contentScrollView!)
+            make.width.height.equalTo(contentScrollView!)
+            make.right.equalTo(previousImageView!)
         })
     }
     
-    func autoLayoutCalculated() -> Bool {
-        currentImageViewHeight = 0
-        let imageObject: UIImage? = UIImage.init(named: "2") ?? nil
-        if let imageObj = imageObject {
-            if imageObj.size.height > self.view.bounds.height {
-                let kImageViewerScalePoint: CGFloat = imageObj.size.height / self.view.bounds.height
-                currentImageViewWidthWhenImageTooHigh = UIScreen.main.bounds.width * kImageViewerScalePoint
-                isCurrentImageViewTooHigh = true
-            } else {
-                isCurrentImageViewTooHigh = false
-                let kImageViewerScalePoint: CGFloat = imageObj.size.width / imageObj.size.height
-                currentImageViewHeight = UIScreen.main.bounds.width / kImageViewerScalePoint
-            }
-            return true
-        }
-        isCurrentImageViewTooHigh = false
-        return false
+    func addPreviousImageViewAutoLayout() {
+        contentScrollView?.snp.makeConstraints({ (make) -> Void in
+            make.edges.equalTo(contentView!)
+        })
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
@@ -129,34 +116,16 @@ class WXPhotoBrowserViewController: UIViewController, UIScrollViewDelegate {
     }
     
     // MARK: - UIScrollViewDelegate
-    
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        print("#################")
-        print("scrollViewDidEndZooming")
-        print(scrollView.contentOffset.x, scrollView.contentOffset.y)
-        print("#################")
-    }
-    
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        print("----------------------------")
-        print("viewForZooming")
-        print(scrollView.contentOffset.x, scrollView.contentOffset.y)
-        print("----------------------------")
-        return imageViewer
-    }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
         
-    }
-    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         print(scrollView.contentOffset.x, scrollView.contentOffset.y)
     }
     
-    // MARK: - Gesture Handlers
-    
-    @objc func didSingleTapGestureReceived() {
-        self.navigationController?.popViewController(animated: true)
+    // MARK: - WXPhotoItemViewProtocol
+    func triggerToResponseAfterSingleTapGestureOnPhotoItemAtIndex(photoIndex: Int) {
+        print("WXPhotoItemViewProtocol")
+        print(photoIndex)
     }
-
+    
+    
 }

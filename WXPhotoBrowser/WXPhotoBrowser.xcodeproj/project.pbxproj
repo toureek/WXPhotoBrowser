@@ -14,6 +14,8 @@
 		4577991F206B528900706D44 /* WXPhotoBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4577991E206B528900706D44 /* WXPhotoBrowserViewController.swift */; };
 		457FD5F3206B461300CE85D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 457FD5F2206B461300CE85D7 /* Assets.xcassets */; };
 		457FD601206B461300CE85D7 /* WXPhotoBrowserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457FD600206B461300CE85D7 /* WXPhotoBrowserTests.swift */; };
+		BFC81A46206B6FB800D97916 /* WXPhotoItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC81A45206B6FB800D97916 /* WXPhotoItemView.swift */; };
+		BFC81A48206B6FB800D97916 /* WXPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFC81A47206B6FB800D97916 /* WXPhoto.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +40,8 @@
 		457FD5FC206B461300CE85D7 /* WXPhotoBrowserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WXPhotoBrowserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		457FD600206B461300CE85D7 /* WXPhotoBrowserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WXPhotoBrowserTests.swift; sourceTree = "<group>"; };
 		457FD602206B461300CE85D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BFC81A45206B6FB800D97916 /* WXPhotoItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WXPhotoItemView.swift; sourceTree = "<group>"; };
+		BFC81A47206B6FB800D97916 /* WXPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WXPhoto.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +75,8 @@
 			isa = PBXGroup;
 			children = (
 				4577991E206B528900706D44 /* WXPhotoBrowserViewController.swift */,
+				BFC81A45206B6FB800D97916 /* WXPhotoItemView.swift */,
+				BFC81A47206B6FB800D97916 /* WXPhoto.swift */,
 			);
 			path = PhotoBrowser;
 			sourceTree = "<group>";
@@ -239,7 +245,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				45779918206B524900706D44 /* WXMainCollectionViewCell.swift in Sources */,
+				BFC81A46206B6FB800D97916 /* WXPhotoItemView.swift in Sources */,
 				4577991F206B528900706D44 /* WXPhotoBrowserViewController.swift in Sources */,
+				BFC81A48206B6FB800D97916 /* WXPhoto.swift in Sources */,
 				45779915206B51ED00706D44 /* WXAppDelegate.swift in Sources */,
 				45779916206B51ED00706D44 /* WXViewController.swift in Sources */,
 			);
